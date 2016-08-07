@@ -70,6 +70,9 @@ public:
 	virtual void keyboardCallback(unsigned char key, int x, int y);
     
     void CreateBox(int index, double x, double y, double z, double length, double width, double height);
+    
+    void CreateCylinder(int index, double x, double y, double z, double length, double width, double height);
+
 
 	static DemoApplication* Create()
 	{
