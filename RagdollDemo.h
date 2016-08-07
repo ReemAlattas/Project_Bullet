@@ -31,7 +31,7 @@ class btDefaultCollisionConfiguration;
 
 class RagdollDemo : public GlutDemoApplication
 {
-
+    //Step 6
 	btAlignedObjectArray<class RagDoll*> m_ragdolls;
 
 	//keep the collision shapes, for deletion/cleanup
@@ -73,6 +73,7 @@ public:
     
     void CreateCylinder(int index, double x, double y, double z, double length, double width, double height);
     
+    //Step 10
     void DeleteObject(int index);
 
 	static DemoApplication* Create()
