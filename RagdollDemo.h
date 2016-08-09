@@ -31,7 +31,6 @@ class btDefaultCollisionConfiguration;
 
 class RagdollDemo : public GlutDemoApplication
 {
-    //Step 6
 	btAlignedObjectArray<class RagDoll*> m_ragdolls;
 
 	//keep the collision shapes, for deletion/cleanup
@@ -45,6 +44,7 @@ class RagdollDemo : public GlutDemoApplication
 
 	btDefaultCollisionConfiguration* m_collisionConfiguration;
     
+    //Step 6
     btRigidBody* body[9]; // one main body, 4x2 leg segments
     
     btCollisionShape* geom[9];
@@ -69,8 +69,10 @@ public:
 
 	virtual void keyboardCallback(unsigned char key, int x, int y);
     
+    //Step 8
     void CreateBox(int index, double x, double y, double z, double length, double width, double height);
     
+    //Step 9
     void CreateCylinder(int index, double x, double y, double z, double length, double width, double height);
     
     //Step 10
