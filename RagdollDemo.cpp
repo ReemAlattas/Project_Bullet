@@ -116,6 +116,7 @@ public:
         // Setup the geometry
         m_shapes[BODYPART_PELVIS] = new btCapsuleShape(btScalar(0.15), btScalar(0.20));
         m_shapes[BODYPART_SPINE] = new btCapsuleShape(btScalar(0.15), btScalar(0.28));
+        // Step 7
         m_shapes[BODYPART_HEAD] = new btCapsuleShape(btScalar(0.10*4), btScalar(0.05*4));
         m_shapes[BODYPART_LEFT_UPPER_LEG] = new btCapsuleShape(btScalar(0.07), btScalar(0.45));
         m_shapes[BODYPART_LEFT_LOWER_LEG] = new btCapsuleShape(btScalar(0.05), btScalar(0.37));
@@ -349,8 +350,8 @@ void RagdollDemo::initPhysics()
     m_solver = new btSequentialImpulseConstraintSolver;
     
     m_dynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher,m_broadphase,m_solver,m_collisionConfiguration);
-    m_dynamicsWorld->getDispatchInfo().m_useConvexConservativeDistanceUtil = true;
-    m_dynamicsWorld->getDispatchInfo().m_convexConservativeDistanceThreshold = 0.01f;
+    //m_dynamicsWorld->getDispatchInfo().m_useConvexConservativeDistanceUtil = true;
+    //m_dynamicsWorld->getDispatchInfo().m_convexConservativeDistanceThreshold = 0.01f;
     
     
     
@@ -376,9 +377,24 @@ void RagdollDemo::initPhysics()
     
     // Spawn one ragdoll
     btVector3 startOffset(1,0.5,0);
-    spawnRagdoll(startOffset);
+    // Step 9
+    //spawnRagdoll(startOffset);
     startOffset.setValue(-1,0.5,0);
-    spawnRagdoll(startOffset);
+    // Step 11
+    //spawnRagdoll(startOffset);
+    
+    // Step 11 - Assignment 5
+    CreateBox(0, 0., 1., 0., 1., 1., 0.2); // Create the box
+    // Step 16 + 17 - Assignment 5
+    CreateCylinder(1, 2., 1., 0., 0.2, 1., -55); // Create Leg 1
+    CreateCylinder(2, -2., 1., 0., 0.2, 1., -55); // Create Leg 2
+    CreateCylinder2(3, 0., 1., 2., 0.2, 1., -55); // Create Leg 3
+    CreateCylinder2(4, 0., 1., -2., 0.2, 1., -55); // Create Leg 4
+    // Create the bottom legs
+    CreateCylinder3(5, 3, 0., 0., 0.2, 1., -55); // Create Leg 5
+    CreateCylinder3(6, -3., 0., 0., 0.2, 1., -55); // Create Leg 6
+    CreateCylinder3(7, 0., 0., 3., 0.2, 1., -55); // Create Leg 7
+    CreateCylinder3(8, 0., 0., -3., 0.2, 1., -55); // Create Leg 8
     
     clientResetScene();
 }
@@ -400,13 +416,14 @@ void RagdollDemo::clientMoveAndDisplay()
     if (ms > minFPS)
         ms = minFPS;
     
-    if (m_dynamicsWorld)
+    //if (m_dynamicsWorld)  // Step 13 - Assignment 5
+    if (!pause)
     {
+        // Step 8 + 10
         m_dynamicsWorld->stepSimulation(ms / 1000000.f);
         
         //optional but useful: debug drawing
-        m_dynamicsWorld->debugDrawWorld();
-        
+        //m_dynamicsWorld->debugDrawWorld(); // Step 13 - Assignment 5
         
     }
     
@@ -441,6 +458,11 @@ void RagdollDemo::keyboardCallback(unsigned char key, int x, int y)
             spawnRagdoll(startOffset);
             break;
         }
+        case 'p':
+        {
+            pause = !pause;
+            break;
+        }
         default:
             DemoApplication::keyboardCallback(key, x, y);
     }
@@ -452,6 +474,8 @@ void RagdollDemo::keyboardCallback(unsigned char key, int x, int y)
 
 void	RagdollDemo::exitPhysics()
 {
+    // Step 12 - Assignment 5
+    DeleteObject(0);
     
     int i;
     
@@ -502,6 +526,109 @@ void	RagdollDemo::exitPhysics()
 }
 
 
+// Step 8
+void RagdollDemo::CreateBox(int index, double x, double y, double z, double length, double width, double height)
+{
+    geom[index] = new btBoxShape(btVector3(width, height, length));
+    
+    //btDefaultMotionState* motionstate = new btDefaultMotionState();
+    btDefaultMotionState* motionstate = new btDefaultMotionState(btTransform(
+                                                                             btQuaternion(0, 0, 0, 1),
+                                                                             btVector3(x, y, z)
+                                                                             ));
+    
+    btRigidBody::btRigidBodyConstructionInfo rigidBodyCI(
+                                                         1.0,                  // mass, in kg. 0 -> Static object, will never move.
+                                                         motionstate,
+                                                         geom[index],  // collision shape of body
+                                                         btVector3(0,0,0)    // local inertia
+                                                         );
+    
+    body[index] = new btRigidBody(rigidBodyCI);
+    
+    m_dynamicsWorld->addRigidBody(body[index]);
+    
+}
+
+// Step 9
+void RagdollDemo::CreateCylinder(int index, double x, double y, double z, double diameter, double sideLength, int angle)
+{
+    geom[index] = new btCylinderShape(btVector3(diameter, sideLength, diameter));
+    
+    //btDefaultMotionState* motionstate = new btDefaultMotionState();
+    btDefaultMotionState* motionstate = new btDefaultMotionState(btTransform(
+                                                                             btQuaternion(btVector3(0, 0, 1), angle),
+                                                                             btVector3(x, y, z)
+                                                                             ));
+    
+    btRigidBody::btRigidBodyConstructionInfo rigidBodyCI(
+                                                         1.0,                  // mass, in kg. 0 -> Static object, will never move.
+                                                         motionstate,
+                                                         geom[index],  // collision shape of body
+                                                         btVector3(0,0,0)    // local inertia
+                                                         );
+    
+    //glRotatef(90, 1, 0, 0);
+    
+    body[index] = new btRigidBody(rigidBodyCI);
+    
+    m_dynamicsWorld->addRigidBody(body[index]);
+}
+
+void RagdollDemo::CreateCylinder2(int index, double x, double y, double z, double diameter, double sideLength, int angle)
+{
+    geom[index] = new btCylinderShape(btVector3(diameter, sideLength, diameter));
+    
+    //btDefaultMotionState* motionstate = new btDefaultMotionState();
+    btDefaultMotionState* motionstate = new btDefaultMotionState(btTransform(
+                                                                             btQuaternion(btVector3(1, 0, 0), angle),
+                                                                             btVector3(x, y, z)
+                                                                             ));
+    
+    btRigidBody::btRigidBodyConstructionInfo rigidBodyCI(
+                                                         1.0,                  // mass, in kg. 0 -> Static object, will never move.
+                                                         motionstate,
+                                                         geom[index],  // collision shape of body
+                                                         btVector3(0,0,0)    // local inertia
+                                                         );
+    
+    //glRotatef(90, 1, 0, 0);
+    
+    body[index] = new btRigidBody(rigidBodyCI);
+    
+    m_dynamicsWorld->addRigidBody(body[index]);
+}
+
+void RagdollDemo::CreateCylinder3(int index, double x, double y, double z, double diameter, double sideLength, int angle)
+{
+    geom[index] = new btCylinderShape(btVector3(diameter, sideLength, diameter));
+    
+    //btDefaultMotionState* motionstate = new btDefaultMotionState();
+    btDefaultMotionState* motionstate = new btDefaultMotionState(btTransform(
+                                                                             btQuaternion(btVector3(0, 1, 0), angle),
+                                                                             btVector3(x, y, z)
+                                                                             ));
+    
+    btRigidBody::btRigidBodyConstructionInfo rigidBodyCI(
+                                                         1.0,                  // mass, in kg. 0 -> Static object, will never move.
+                                                         motionstate,
+                                                         geom[index],  // collision shape of body
+                                                         btVector3(0,0,0)    // local inertia
+                                                         );
+    
+    //glRotatef(90, 1, 0, 0);
+    
+    body[index] = new btRigidBody(rigidBodyCI);
+    
+    m_dynamicsWorld->addRigidBody(body[index]);
+}
+
+//Step 10
+void RagdollDemo::DeleteObject(int index)
+{
+    m_dynamicsWorld->removeRigidBody(body[index]);
+    delete body[index];
+}
 
 
 
