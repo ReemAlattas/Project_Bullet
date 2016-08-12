@@ -349,8 +349,9 @@ void RagdollDemo::initPhysics()
     m_solver = new btSequentialImpulseConstraintSolver;
     
     m_dynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher,m_broadphase,m_solver,m_collisionConfiguration);
-    //m_dynamicsWorld->getDispatchInfo().m_useConvexConservativeDistanceUtil = true;
-    //m_dynamicsWorld->getDispatchInfo().m_convexConservativeDistanceThreshold = 0.01f;
+    m_dynamicsWorld->getDispatchInfo().m_useConvexConservativeDistanceUtil = true;
+    m_dynamicsWorld->getDispatchInfo().m_convexConservativeDistanceThreshold = 0.01f;
+    
     
     
     // Setup a big ground box
@@ -375,15 +376,9 @@ void RagdollDemo::initPhysics()
     
     // Spawn one ragdoll
     btVector3 startOffset(1,0.5,0);
-    //spawnRagdoll(startOffset);
+    spawnRagdoll(startOffset);
     startOffset.setValue(-1,0.5,0);
-    //spawnRagdoll(startOffset);
-    
-    //Step 11
-    CreateBox(0, 0., 1., 0., 1., 1., 0.2); // Create the box
-    
-    //Step 16
-    CreateCylinder(1, 0., 1., 0., 1., 1., 0.2); // Create the Cylinder
+    spawnRagdoll(startOffset);
     
     clientResetScene();
 }
@@ -405,9 +400,7 @@ void RagdollDemo::clientMoveAndDisplay()
     if (ms > minFPS)
         ms = minFPS;
     
-    //if (m_dynamicsWorld)
-    //Step 13
-    if (!pause)
+    if (m_dynamicsWorld)
     {
         m_dynamicsWorld->stepSimulation(ms / 1000000.f);
         
@@ -448,12 +441,6 @@ void RagdollDemo::keyboardCallback(unsigned char key, int x, int y)
             spawnRagdoll(startOffset);
             break;
         }
-            //Step 14
-        case 'p':
-        {
-            pause = !pause;
-            break;
-        }
         default:
             DemoApplication::keyboardCallback(key, x, y);
     }
@@ -461,61 +448,10 @@ void RagdollDemo::keyboardCallback(unsigned char key, int x, int y)
     
 }
 
-//Step 8
-void RagdollDemo::CreateBox(int index, double x, double y, double z, double length, double width, double height)
-{
-    //...
-    //geom[index] = ...
-    //...
-    //body[index] = ...
-    //...
-    //m_dynamicsWorld->addRigidBody(body[index]);
-    
-    geom = new btCollisionShape();
-    geom[index] = startOffset(x, y, z);
-    
-    body = new btRigidBody();
-    body[index] = new btBoxShape(btVector3(btScalar(length),btScalar(width),btScalar(height)));
-    
-    m_dynamicsWorld->addRigidBody(body[index]);
-    
-    
-}
 
-//Step 9
-void RagdollDemo::CreateCylinder(int index, double x, double y, double z, double diameter1, double sideLength, double diameter2)
-{
-    btTransform t;
-    t.setIdentity();
-    t.setOrigin(btVector3(x,y,z));
-    btCylinderShape* cylinder = new btCylinderShapr(btVector3(diameter1/2.0, sideLength/2.0, diameter2/2.0));
-    //geom[index] = cylinder;
-    btVector3 inertia(0,0,0);
-    btScalar mass = 0.0;
-    if (mass != 0.0)
-        cylinder->calculateLocalInertia(mass, inertia);
-    
-    btMotionState* motion = new btDefaultMotionState(t);
-    btRigidBody::btRigidBodyConstructionInfo info(mass, motion, cylinder);
-    btRigidBody* body = btRigidBody(info);
-    //body[index] = btRigidBody(info);
-    m_dynamicsWorld->addRigidBody(body);
-    m_collisionShapes.push_back(body);
-    
-    
-}
-
-//Step 10
-void RagdollDemo::DeleteObject(int index)
-{
-    m_dynamicsWorld->removeRigidBody(body[index]);
-    m_dynamicsWorld->removeCollisionShape(geom[index]);
-}
 
 void	RagdollDemo::exitPhysics()
 {
-    //Step 12
-    DeleteObject(0);
     
     int i;
     
